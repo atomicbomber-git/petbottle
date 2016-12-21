@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Caesar Encrypter / Decrypter </title>
+
+        <link rel="stylesheet" type="text/css" href="./css/bulma.css"/>
+        <script src="./js/vue.js"></script>
+
+        <style>
+            .container {
+                width: 400px;
+            }
+        </style>
+
+        <script>
+            window.onload = function() {
+                var app = new Vue({
+                    el: "#app",
+                    data: {
+                        plain: "Plaintext",
+                        offset: 10,
+                        mode: "ENCRYPT"
+                    },
+                    computed: {
+                        input_label: function() {
+                            if (this.mode === "ENCRYPT") return "Plaintext";
+                            return "Ciphertext";
+                        },
+
+                        output_label: function() {
+                            if (this.mode === "ENCRYPT") return "Ciphertext";
+                            return "Plaintext";
+                        },
+
+                        button_label: function() {
+                            if (this.mode === "ENCRYPT") return "In Encrypt Mode";
+                            return "In Decrypt Mode";
+                        },
+
+                        button_class: function() {
+                            if (this.mode === "ENCRYPT") return "is-primary";
+                            return "is-danger";
+                        },
+
+                        encrypted: function() {
+                            var plain_array = this.plain.split("");
+                            var offset = this.offset;
+
+                            if (this.mode == "DECRYPT") {
+                                offset *= -1;
+                            }
+
+                            var encoded_plain = plain_array.map(
+                                function(item) {
+
+                                    var code = item.charCodeAt();
+
+                                    /* If Lowercase */
+                                    if (code >= "a".charCodeAt() && code <= "z".charCodeAt()) {
+                                        code = code - "a".charCodeAt();
+                                        code = code + offset;
+
+                                        /* Round the offset so it doesn't go beyond 0 or 25 */
+                                        if (code > 25 || code < 0) {
+                                            code = ((code % 26) + 26) % 26;
+                                        }
+
+                                        return code + "a".charCodeAt();
+                                    }
+
+                                    /* If Uppercase */
+                                    if (code >= "A".charCodeAt() && code <= "Z".charCodeAt()) {
+                                        code = code - "A".charCodeAt();
+                                        code = code + offset;
+
+                                        /* Round the offset so it doesn't go beyond 0 or 25 */
+                                        if (code > 25 || code < 0) {
+                                            code = ((code % 26) + 26) % 26;
+                                        }
+
+                                        return code + "A".charCodeAt();
+                                    }
+
+                                    return code;
+                                }
+                            );
+
+                            console.log(encoded_plain);
+
+                            var encrypted = encoded_plain.map(
+                                function(item) {
+                                    return String.fromCharCode(item);
+                                }
+                            );
+
+                            return encrypted.join("");
+                        }
+
+                    },
+
+                    methods: {
+                        toggle_mode: function() {
+                            if (this.mode === "ENCRYPT") {
+                                this.mode = "DECRYPT";
+                                return;
+                            }
+                            this.mode = "ENCRYPT";
+
+                        }
+                    }
+                }
+
+            );
+            };
+        </script>
+    </head>
+
+    <body>
+        <div class="container">
+            <div id="app">
+
+                <div style="height: 60px"></div>
+
+                <h1 class="title is-3"> Caesar Encrypter / Decrypter </h1>
+                <label class="label"> {{ input_label }}: </label>
+                <p class="control">
+                    <textarea class="textarea" v-model="plain" type="text" placeholder="Insert plaintext here"></textarea>
+                </p>
+                <label class="label"> Offset: </label>
+                <p class="control">
+                    <input class="input" v-model="offset" type="number" placeholder="Offset / Shift Amount">
+                </p>
+                <p class="control">
+                    <button v-on:click="toggle_mode" class="button" v-bind:class="button_class"> {{ button_label }} </button>
+                </p>
+                <label class="label"> {{ output_label }}: </label>
+                <p class="control">
+                    <textarea class="textarea" v-model="encrypted" placeholder="Decrypted"></textarea>
+                </p>
+            </div>
+        </div>
+    </body>
+</html>
